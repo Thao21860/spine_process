@@ -2,8 +2,7 @@ import os.path
 import nibabel as nib
 import numpy as np
 import tqdm
-from snapshot import GetFileList
-from snapshot import redirect
+from utils import get_file_list, redirect
 '''
 根据现有mask裁剪单个锥体
 '''
@@ -68,7 +67,7 @@ def find_start_end(CT, dim='x'):
 if __name__ == "__main__":
     rootpath = "D:\\dev\\dataset\\01_training"
     log_txt = open('shape.txt', 'a')
-    niis , masks = GetFileList(rootpath)
+    niis , masks = get_file_list(rootpath)
     for i in tqdm.tqdm(range(len(niis))):
         print(niis[i])
         ct = nib.load(os.path.join(rootpath, niis[i]))
