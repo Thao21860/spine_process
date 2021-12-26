@@ -31,9 +31,10 @@ def crop_ct(img):
     z_range = find_start_end(CT, 'z')
     # 根据范围裁剪图像
     CT = CT[x_range[0]:x_range[1], :, :]
-    print("crop size {}".format(CT.shape))
+
     CT = CT[:, y_range[0]:y_range[1], :]
     CT = CT[:, :, z_range[0]:z_range[1]]
+    print("crop size {}".format(CT.shape))
 
     return CT
 
@@ -66,6 +67,7 @@ def find_start_end(CT, dim='x'):
 
 if __name__ == "__main__":
     rootpath = "D:\\dev\\dataset\\01_training"
+    log_txt = open('shape.txt', 'a')
     niis , masks = GetFileList(rootpath)
     for i in tqdm.tqdm(range(len(niis))):
         print(niis[i])
@@ -81,7 +83,9 @@ if __name__ == "__main__":
         for key in labels.keys():
             img = trans_and(ct, labels[key])
             img = crop_ct(img)
-            img = nib.Nifti1Image(img, np.eye(4))
             name = niis[i][:-7] + '_' + str(key)
+            log_txt.write(name + ' ' + str(img.shape) + '\n')
+            img = nib.Nifti1Image(img, np.eye(4))
             nib.save(img, name)
         break
+    log_txt.close()

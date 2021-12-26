@@ -3,35 +3,10 @@ import numpy as np
 import json
 import os
 import cv2
+from utils import get_file_list, redirect, Hu2Gray
 '''
   生成ct图像中间区域的snapshot
 '''
-def GetFileList(path):
-    allfile = os.listdir(path)
-    allnii = [i for i in allfile if 'nii.gz' in i]
-    ct = [i for i in allnii if 'seg' not in i]
-    mask = [i for i in allnii if 'seg' in i]
-    assert len(ct)==len(mask)
-    return ct, mask
-# 若方向不同，则重定向
-def redirect(img):
-
-    # original_affine = img.affine
-    original_axcode = nib.aff2axcodes(img.affine)
-    # print(nii.split('/')[-1], original_axcode)
-    img = img.as_reoriented(nib.io_orientation(img.affine))
-    new_axcode = nib.aff2axcodes(img.affine)
-    print('original axcode', original_axcode, 'now (should be ras)', new_axcode)
-    return img
-    # nib.save(img, image)
-    # save_pickle((original_affine, original_axcode), origaffine_pkl)
-
-def Hu2Gray(ctshot):
-    dfactor = 255.0 / (np.max(ctshot) - np.min(ctshot))
-    ctshot = (ctshot - np.min(ctshot)) * dfactor
-    ctshot = ctshot.astype(np.uint8)
-    return ctshot
-
 
 def GetMidPic(datapath, nii, mask):
 
@@ -87,7 +62,7 @@ if __name__ == "__main__":
         colorlabel = json.load(f)['ColorLabel']
     print(colorlabel[1]['Color']) # dict
 
-    niis, mask = GetFileList(path)
+    niis, mask = get_file_list(path)
     print(len(niis))
     for i in range(len(niis)):
         ctshot, mid_mask = GetMidPic(path, niis[i], mask[i])
