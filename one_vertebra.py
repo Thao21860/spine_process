@@ -3,6 +3,7 @@ import nibabel as nib
 import numpy as np
 import tqdm
 from utils import get_file_list, redirect
+import SimpleITK as sitk
 '''
 根据现有mask裁剪单个锥体
 '''
@@ -73,6 +74,8 @@ if __name__ == "__main__":
         ct = nib.load(os.path.join(rootpath, niis[i]))
         maskpath = os.path.join(rootpath, niis[i][:-7] + '_seg.nii.gz')
         mask = nib.load(maskpath)
+        affine = ct.affine
+        header = ct.header
         ct = redirect(ct)
         ct = ct.get_fdata()
         mask = redirect(mask)
@@ -84,7 +87,10 @@ if __name__ == "__main__":
             img = crop_ct(img)
             name = niis[i][:-7] + '_' + str(key)
             log_txt.write(name + ' ' + str(img.shape) + '\n')
-            img = nib.Nifti1Image(img, np.eye(4))
-            nib.save(img, name)
+            img = nib.Nifti1Image(img, affine, header)
+            nib.save(img, os.path.join('D:\Epan',name))
+            # img = sitk.GetImageFromArray(img)
+            # sitk.WriteImage(img, name + '.nii.gz')
+            break
         break
     log_txt.close()
